@@ -53,8 +53,8 @@
                Reader/PCD   Uno/101       Mega      Nano v3    Leonardo/Micro   Pro Micro
    Signal      Pin          Pin           Pin       Pin        Pin              Pin
    -----------------------------------------------------------------------------------------
-   RST/Reset   RST          9             5         D9         RESET/ICSP-5     RST
-   SPI SS      SDA(SS)      10            53        D10        10               10
+   RST/Reset   RST          9             5         D9         RESET/ICSP-5     RST -> GPIO 22(ESP)
+   SPI SS      SDA(SS)      10            53        D10        10               10  -> GPIO 23(ESP)
    SPI MOSI    MOSI         11 / ICSP-4   51        D11        ICSP-4           16
    SPI MISO    MISO         12 / ICSP-1   50        D12        ICSP-1           14
    SPI SCK     SCK          13 / ICSP-3   52        D13        ICSP-3           15
@@ -87,12 +87,12 @@
 #define LED_OFF LOW
 #endif
 
-constexpr uint8_t redLed = 7;   // Set Led Pins
-constexpr uint8_t greenLed = 6;
+constexpr uint8_t redLed = 19;   // Set Led Pins
+constexpr uint8_t greenLed = 18;
 constexpr uint8_t blueLed = 5;
 
 constexpr uint8_t relay = 4;     // Set Relay Pin
-constexpr uint8_t buzzer = 8;    // Set Buzzer Pin
+constexpr uint8_t buzzer = 21;    // Set Buzzer Pin
 constexpr uint8_t wipeB = 2;     // Button pin for WipeMode
 
 boolean match = false;          // initialize card match to false
@@ -106,8 +106,8 @@ byte readCard[4];   // Stores scanned ID read from RFID Module
 byte masterCard[4];   // Stores master card's ID read from EEPROM
 
 // Create MFRC522 instance.
-constexpr uint8_t RST_PIN = 9;     // Configurable, see typical pin layout above
-constexpr uint8_t SS_PIN = 10;     // Configurable, see typical pin layout above
+constexpr uint8_t RST_PIN = 22;     // Configurable, see typical pin layout above
+constexpr uint8_t SS_PIN = 23;     // Configurable, see typical pin layout above
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
