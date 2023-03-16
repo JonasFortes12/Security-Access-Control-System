@@ -53,11 +53,11 @@
                Reader/PCD   Uno/101       Mega      Nano v3    Leonardo/Micro   Pro Micro
    Signal      Pin          Pin           Pin       Pin        Pin              Pin
    -----------------------------------------------------------------------------------------
-   RST/Reset   RST          9             5         D9         RESET/ICSP-5     RST -> GPIO 22(ESP)
-   SPI SS      SDA(SS)      10            53        D10        10               10  -> GPIO 23(ESP)
-   SPI MOSI    MOSI         11 / ICSP-4   51        D11        ICSP-4           16
-   SPI MISO    MISO         12 / ICSP-1   50        D12        ICSP-1           14
-   SPI SCK     SCK          13 / ICSP-3   52        D13        ICSP-3           15
+   RST/Reset   RST          9             5         D9         RESET/ICSP-5     RST -> GPIO 22(ESP32)
+   SPI SS      SDA(SS)      10            53        D10        10               10  -> GPIO 21(ESP32)
+   SPI MOSI    MOSI         11 / ICSP-4   51        D11        ICSP-4           16  -> GPIO 23(ESP32)
+   SPI MISO    MISO         12 / ICSP-1   50        D12        ICSP-1           14  -> GPIO 19(ESP32)
+   SPI SCK     SCK          13 / ICSP-3   52        D13        ICSP-3           15  -> GPIO 18(ESP32)
 */
 
 #include <EEPROM.h>     // We are going to read and write PICC's UIDs from/to EEPROM
@@ -87,13 +87,13 @@
 #define LED_OFF LOW
 #endif
 
-constexpr uint8_t redLed = 19;   // Set Led Pins
-constexpr uint8_t greenLed = 18;
+constexpr uint8_t redLed = 13;   // Set Led Pins
+constexpr uint8_t greenLed = 12;
 constexpr uint8_t blueLed = 5;
 
 constexpr uint8_t relay = 4;     // Set Relay Pin
-constexpr uint8_t buzzer = 21;    // Set Buzzer Pin
-constexpr uint8_t wipeB = 2;     // Button pin for WipeMode
+constexpr uint8_t buzzer = 26;    // Set Buzzer Pin
+constexpr uint8_t wipeB = 15;     // Button pin for WipeMode
 
 boolean match = false;          // initialize card match to false
 boolean programMode = false;  // initialize programming mode to false
