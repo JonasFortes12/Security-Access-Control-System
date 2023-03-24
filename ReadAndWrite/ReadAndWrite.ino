@@ -107,7 +107,7 @@ byte masterCard[4];   // Stores master card's ID read from EEPROM
 
 // Create MFRC522 instance.
 constexpr uint8_t RST_PIN = 22;     // Configurable, see typical pin layout above
-constexpr uint8_t SS_PIN = 23;     // Configurable, see typical pin layout above
+constexpr uint8_t SS_PIN = 21;     // Configurable, see typical pin layout above
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
