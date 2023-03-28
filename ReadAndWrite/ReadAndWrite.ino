@@ -87,6 +87,11 @@
 #define LED_OFF LOW
 #endif
 
+//Position in memory that save how many cards are recorded in flash memory 
+#define NumberCardsRecorded_SlotMemory 0
+#define magicNumber_SlotMemory 1
+#define magicNumber 143
+
 constexpr uint8_t redLed = 13;   // Set Led Pins
 constexpr uint8_t greenLed = 12;
 constexpr uint8_t blueLed = 5;
@@ -127,7 +132,9 @@ void setup() {
   digitalWrite(blueLed, LED_OFF); // Make sure led is off
 
   //Protocol Configuration
-  Serial.begin(9600);  // Initialize serial communications with PC
+  size_t size = sizeof(byte) * 512; 
+  EEPROM.begin(size);
+  Serial.begin(9600);  // Initialize serial communications with PC   
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
 
@@ -152,6 +159,7 @@ void setup() {
         }
         else {
           EEPROM.write(x, 0);       // if not write 0 to clear, it takes 3.3mS
+          EEPROM.commit();                    
         }
       }
       Serial.println(F("EEPROM Successfully Wiped"));
@@ -174,7 +182,7 @@ void setup() {
   // This also useful to just redefine the Master Card
   // You can keep other EEPROM records just write other than 143 to EEPROM address 1
   // EEPROM address 1 should hold magical number which is '143'
-  if (EEPROM.read(1) != 143) {
+  if (EEPROM.read(magicNumber_SlotMemory) != magicNumber) {
     Serial.println(F("No Master Card Defined"));
     Serial.println(F("Scan A PICC to Define as Master Card"));
     do {
@@ -187,8 +195,10 @@ void setup() {
     while (!successRead);                  // Program will not go further while you not get a successful read
     for ( uint8_t j = 0; j < 4; j++ ) {        // Loop 4 times
       EEPROM.write( 2 + j, readCard[j] );  // Write scanned PICC's UID to EEPROM, start from address 3
+      EEPROM.commit();      
     }
-    EEPROM.write(1, 143);                  // Write to EEPROM we defined Master Card.
+    EEPROM.write(magicNumber_SlotMemory, magicNumber);                  // Write to EEPROM we defined Master Card.
+    EEPROM.commit();
     Serial.println(F("Master Card Defined"));
   }
   Serial.println(F("-------------------"));
@@ -220,7 +230,8 @@ void loop () {
       Serial.println(F("Master Card will be Erased! in 10 seconds"));
       bool buttonState = monitorWipeButton(10000); // Give user enough time to cancel operation
       if (buttonState == true && digitalRead(wipeB) == HIGH) {    // If button still be pressed, wipe EEPROM
-        EEPROM.write(1, 0);                  // Reset Magic Number.
+        EEPROM.write(magicNumber_SlotMemory, 0);                  // Reset Magic Number.
+        EEPROM.commit();
         Serial.println(F("Master Card Erased from device"));
         Serial.println(F("Please reset to re-program Master Card"));
         while (1);
@@ -288,7 +299,7 @@ void loop () {
       digitalWrite(buzzer, LOW);
       
       Serial.println(F("Hello Master - Entered Program Mode"));
-      uint8_t count = EEPROM.read(0);   // Read the first Byte of EEPROM that
+      uint8_t count = EEPROM.read(NumberCardsRecorded_SlotMemory);   // Read the first Byte of EEPROM that
       Serial.print(F("I have "));     // stores the number of ID's in EEPROM
       Serial.print(count);
       Serial.print(F(" record(s) on EEPROM"));
@@ -300,7 +311,7 @@ void loop () {
     else {
       if ( findID(readCard) ) { // If not, see if the card is in the EEPROM
         Serial.println(F("Welcome, You shall pass"));
-        granted(300);         // Open the door lock for 300 ms
+        granted(NumberCardsRecorded_SlotMemory);         // Open the door lock for 3O0 ms
       }
       else {      // If not, show that the ID was not valid
         Serial.println(F("You shall not pass"));
@@ -424,12 +435,14 @@ void readID( uint8_t number ) {
 ///////////////////////////////////////// Add ID to EEPROM   ///////////////////////////////////
 void writeID( byte a[] ) {
   if ( !findID( a ) ) {     // Before we write to the EEPROM, check to see if we have seen this card before!
-    uint8_t num = EEPROM.read(0);     // Get the numer of used spaces, position 0 stores the number of ID cards
+    uint8_t num = EEPROM.read(NumberCardsRecorded_SlotMemory);     // Get the numer of used spaces, position 0 stores the number of ID cards
     uint8_t start = ( num * 4 ) + 6;  // Figure out where the next slot starts
     num++;                // Increment the counter by one
-    EEPROM.write( 0, num );     // Write the new count to the counter
+    EEPROM.write( NumberCardsRecorded_SlotMemory, num );     // Write the new count to the counter
+    EEPROM.commit();
     for ( uint8_t j = 0; j < 4; j++ ) {   // Loop 4 times
       EEPROM.write( start + j, a[j] );  // Write the array values to EEPROM in the right position
+      EEPROM.commit();
     }
     successWrite();
     Serial.println(F("Succesfully added ID record to EEPROM"));
@@ -447,22 +460,25 @@ void deleteID( byte a[] ) {
     Serial.println(F("Failed! There is something wrong with ID or bad EEPROM"));
   }
   else {
-    uint8_t num = EEPROM.read(0);   // Get the numer of used spaces, position 0 stores the number of ID cards
+    uint8_t num = EEPROM.read(NumberCardsRecorded_SlotMemory);   // Get the numer of used spaces, position 0 stores the number of ID cards
     uint8_t slot;       // Figure out the slot number of the card
     uint8_t start;      // = ( num * 4 ) + 6; // Figure out where the next slot starts
     uint8_t looping;    // The number of times the loop repeats
     uint8_t j;
-    uint8_t count = EEPROM.read(0); // Read the first Byte of EEPROM that stores number of cards
+    uint8_t count = EEPROM.read(NumberCardsRecorded_SlotMemory); // Read the first Byte of EEPROM that stores number of cards
     slot = findIDSLOT( a );   // Figure out the slot number of the card to delete
     start = (slot * 4) + 2;
     looping = ((num - slot) * 4);
     num--;      // Decrement the counter by one
-    EEPROM.write( 0, num );   // Write the new count to the counter
+    EEPROM.write( NumberCardsRecorded_SlotMemory, num );   // Write the new count to the counter
+    EEPROM.commit();
     for ( j = 0; j < looping; j++ ) {         // Loop the card shift times
       EEPROM.write( start + j, EEPROM.read(start + 4 + j));   // Shift the array values to 4 places earlier in the EEPROM
+      EEPROM.commit();
     }
     for ( uint8_t k = 0; k < 4; k++ ) {         // Shifting loop
       EEPROM.write( start + j + k, 0);
+      EEPROM.commit();
     }
     successDelete();
     Serial.println(F("Succesfully removed ID record from EEPROM"));
@@ -487,7 +503,7 @@ boolean checkTwo ( byte a[], byte b[] ) {
 
 ///////////////////////////////////////// Find Slot   ///////////////////////////////////
 uint8_t findIDSLOT( byte find[] ) {
-  uint8_t count = EEPROM.read(0);       // Read the first Byte of EEPROM that
+  uint8_t count = EEPROM.read(NumberCardsRecorded_SlotMemory);       // Read the first Byte of EEPROM that
   for ( uint8_t i = 1; i <= count; i++ ) {    // Loop once for each EEPROM entry
     readID(i);                // Read an ID from EEPROM, it is stored in storedCard[4]
     if ( checkTwo( find, storedCard ) ) {   // Check to see if the storedCard read from EEPROM
@@ -500,7 +516,7 @@ uint8_t findIDSLOT( byte find[] ) {
 
 ///////////////////////////////////////// Find ID From EEPROM   ///////////////////////////////////
 boolean findID( byte find[] ) {
-  uint8_t count = EEPROM.read(0);     // Read the first Byte of EEPROM that
+  uint8_t count = EEPROM.read(NumberCardsRecorded_SlotMemory);     // Read the first Byte of EEPROM that  
   for ( uint8_t i = 1; i <= count; i++ ) {    // Loop once for each EEPROM entry
     readID(i);          // Read an ID from EEPROM, it is stored in storedCard[4]
     if ( checkTwo( find, storedCard ) ) {   // Check to see if the storedCard read from EEPROM
