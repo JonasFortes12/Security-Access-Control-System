@@ -22,13 +22,7 @@ Typical pin layout used:
 //Position in memory that save how many cards are recorded in flash memory 
 #define slotMemory_nCards 0
 
-//
+// First position in EEPROM is reserved to save number of cards registered in memory
 #define initialGapMemory 1
 
-//Last position memory in EEPROM of master card registration 
-#define lastSlotMaster 4
 
-
-
-//Verify If masterCard Exists
-bool masterExists();
