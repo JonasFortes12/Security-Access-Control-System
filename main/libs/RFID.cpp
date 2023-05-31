@@ -3,8 +3,7 @@
 #include <SPI.h>        // RC522 Module uses SPI protocol
 #include <MFRC522.h>    // Library for Mifare RC522 Devices
 
-MFRC522 mfrc522(SDA, RST);  // Create MFRC522 instance
-
+MFRC522 mfrc522(SDA_PIN, RST_PIN);  // Create MFRC522 instance
 
 void setMaster(byte card[]){
   for ( uint8_t j = 0; j < 4; j++ ) {        // Loop 4 times
@@ -69,6 +68,12 @@ uint8_t getNumCards(){
   return nCards; 
 }
 
+///////////////////////////////////////// set number of cards in EEPROM ///////////////////////////////////
+void setNumCards(uint8_t num){
+  EEPROM.write(slotMemory_nCards, num); // Get the number of used spaces, position 0 stores the number of ID cards
+  EEPROM.commit();
+}
+
 ///////////////////////////////////////// increment and decrement number of cards in EEPROM ///////////////////////////////////
 void incrementNumCards(){
   uint8_t num = getNumCards();  // Get the number of used spaces, position 0 stores the number of ID cards
@@ -88,7 +93,7 @@ void decrementNumCards(){
 bool cardExists(byte card[]) {
   uint8_t count = getNumCards();  // Read the first Byte of EEPROM that stores the number of cards
   byte storedCard[4];
-  for (uint8_t i = 1; i < count; i++) {  // Loop once for each EEPROM entry
+  for (uint8_t i = 1; i <= count; i++) {  // Loop once for each EEPROM entry
     readCardByIndex(i, storedCard);  // Read an ID from EEPROM and store it in storedCard
     if (compare(card, storedCard)) {  // Check to see if the storedCard read from EEPROM matches
       return true;
@@ -166,4 +171,20 @@ bool readRFID(byte card[]) {
   }
   mfrc522.PICC_HaltA(); // Stop reading
   return true;
+}
+
+
+void clearCards(){
+  uint8_t count = getNumCards();  // Read the first Byte of EEPROM that stores the number of cards
+  byte nullCard[4] = {0x0, 0x0, 0x0, 0x0};
+  for (uint8_t i = 1; i < count; i++) {  // Loop once for each EEPROM entry
+    writeCardInIndex(nullCard, i);  // Read an ID from EEPROM and store it in storedCard
+  }
+  setNumCards(0);
+}
+
+void clearMaster(){
+  byte nullCard[4] = {0x0, 0x0, 0x0, 0x0};
+  setMaster(nullCard);
+  exit(1);
 }
