@@ -5,6 +5,14 @@
 
 MFRC522 mfrc522(SDA_PIN, RST_PIN);  // Create MFRC522 instance
 
+//////////////////////////////////////// Protocol Configuration RFID //////////////////////////////
+void initRFIDModule(){
+  size_t size = sizeof(byte) * 512; 
+  EEPROM.begin(size);
+  SPI.begin();           // MFRC522 Hardware uses SPI protocol
+  mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
+}
+
 //////////////////////////////////////// Read an ID (RFID token) from EEPROM //////////////////////////////
 void readCardByIndex(uint8_t index, byte* storedCard) {
   uint8_t start = (index * 4) + initialGapMemory;  // Figure out starting position

@@ -45,16 +45,17 @@ void deleteAllCards(){
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
+ 
+  // pins definitions
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LOCK_PIN, OUTPUT);
   digitalWrite(LOCK_PIN, LOW);
   pinMode(WIPEBUTTON_PIN, INPUT);
-  //Protocol Configuration
-  size_t size = sizeof(byte) * 512; 
-  EEPROM.begin(size);
+  
+  //Init RFID
+  initRFIDModule();
+
   Serial.begin(9600);  // Initialize serial communications with PC   
-  SPI.begin();           // MFRC522 Hardware uses SPI protocol
-  mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
 
   // Check if Master Card is not defined
   if (!masterExists()) {

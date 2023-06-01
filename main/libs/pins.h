@@ -19,6 +19,11 @@ Typical pin layout used:
 #define MISO_PIN 19
 #define SCK_PIN 18
 
+
+// DY50 pins definition:
+
+
+
 // Actuator pins definition:
 #define WIPEBUTTON_PIN 26
 #define LOCK_PIN 4
