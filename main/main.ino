@@ -9,6 +9,54 @@ byte masterCard[4];   // Stores master card's ID read from EEPROM
 bool wipeState = false;   // Wipe State (Wipe Button)
 unsigned long startTime;  // Time of start of counting
 
+#define BUZZER_PIN 33
+
+void soundEntryMasterMode(){
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(50);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(50);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void soundExitMasterMode(){
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(500);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(50);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(500);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void soundAllowed(){
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+  delay(50);
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(100);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void soundDenied(){
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(500);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void setPinInStateForTime(int timeInSeconds, int pin, int state) {
+  digitalWrite(pin, state); // Define o pino como HIGH
+  delay(timeInSeconds * 1000); // Converte o tempo em segundos para milissegundos
+  digitalWrite(pin, !state); // Define o pino como LOW
+}
+
 void executeAfterTimeInState(void (*functionToExecute)(), unsigned long time, int pin, int state){
   unsigned long startTime = millis();
   
@@ -28,6 +76,9 @@ void myFunc(){
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LOCK_PIN, OUTPUT);
+  digitalWrite(LOCK_PIN, LOW);
   pinMode(WIPEBUTTON_PIN, INPUT);
   //Protocol Configuration
   size_t size = sizeof(byte) * 512; 
@@ -85,6 +136,7 @@ void loop () {
   if (masterMode) { // Check if it's in Program Mode
     if ( isMaster(readCard) ) { //When in program mode check First If master card scanned again to exit program mode
       Serial.println("Master Card scanned");
+      soundExitMasterMode();
       Serial.println("Exiting Program Mode");
       masterMode = false;
     } else {
@@ -100,6 +152,7 @@ void loop () {
   } else {
     if ( isMaster(readCard)) {    // If scanned card's ID matches Master Card's ID - enter program mode
       masterMode = true;
+      soundEntryMasterMode();
       Serial.println("Hello Master - Entered Program Mode");
       uint8_t numCards = getNumCards();   // Read the first Byte of EEPROM that
       Serial.println("I have ");     // stores the number of ID's in EEPROM
@@ -108,9 +161,12 @@ void loop () {
     } else {
       if ( cardExists(readCard) ) { // If not, see if the card is in the EEPROM
         Serial.println("Welcome, You shall pass");
+        soundAllowed();
+        setPinInStateForTime(2, LOCK_PIN, HIGH);
       }
       else {      // If not, show that the ID was not valid
         Serial.println("You shall not pass");
+        soundDenied();
       }
     }
   }
