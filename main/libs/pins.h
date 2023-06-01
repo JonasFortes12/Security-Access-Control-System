@@ -12,14 +12,17 @@ Typical pin layout used:
    SPI SCK     SCK          13 / ICSP-3   52        D13        ICSP-3           15  -> GPIO 18(ESP32)
 */
 
-//RFID pins definitions:
+// RFID pins definition:
 #define RST_PIN 22
 #define SDA_PIN 21
 #define MOSI_PIN 23
 #define MISO_PIN 19
 #define SCK_PIN 18
 
+// Actuator pins definition:
 #define WIPEBUTTON_PIN 26
+#define LOCK_PIN 4
+#define BUZZER_PIN 2
 
 //Position in memory that save how many cards are recorded in flash memory 
 #define slotMemory_nCards 0
