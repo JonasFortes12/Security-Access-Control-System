@@ -13,11 +13,13 @@ Typical pin layout used:
 */
 
 //RFID pins definitions:
-#define RST 22
-#define SDA 21
-#define MOSI 23
-#define MISO 19
-#define SCK 18
+#define RST_PIN 22
+#define SDA_PIN 21
+#define MOSI_PIN 23
+#define MISO_PIN 19
+#define SCK_PIN 18
+
+#define WIPEBUTTON_PIN 26
 
 //Position in memory that save how many cards are recorded in flash memory 
 #define slotMemory_nCards 0
