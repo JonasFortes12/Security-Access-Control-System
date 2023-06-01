@@ -29,13 +29,15 @@ void executeAfterTimeInState(void (*functionToExecute)(), unsigned long time, in
 
 void deleteMasterCard(){
   Serial.println("Wipe Button pressed. In 10 seconds the master card will be erased!");
-  clearMaster();
+  soundCardRemoved();
   Serial.println("Cleaning Master Card...");
+  clearMaster(); // After clear master the system is reloaded.
 }
 
 void deleteAllCards(){
   Serial.println("Wipe Button pressed. In 10 seconds all cards will be erased!");
   clearCards();
+  soundAllCardsRemoved();
   Serial.println("Cleaning All Cards...");
 }
 
@@ -66,6 +68,7 @@ void setup() {
     
     setMaster(readCard);
     Serial.println("Master Card defined");
+    soundCardDefined();
   } else {
       Serial.println("Master Card already defined");
       executeAfterTimeInState(deleteMasterCard, 10, WIPEBUTTON_PIN, HIGH);
@@ -96,10 +99,12 @@ void loop () {
       if ( cardExists(readCard) ) { // If scanned card is known delete it
         Serial.println("I know this card, removing...");
         deleteCard(readCard);
+        soundCardRemoved();
       }
       else {                    // If scanned card is not known add it
         Serial.println("I do not know this card, adding...");
         writeNewCard(readCard);
+        soundCardDefined();
       }
     }
   } else {

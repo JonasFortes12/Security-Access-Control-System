@@ -4,6 +4,7 @@ void soundDenied();
 void soundAllowed();
 void soundExitMasterMode();
 void soundEntryMasterMode();
-void soundMasterDefined();
+void soundCardDefined();
+void soundCardRemoved();
 void soundAllCardsRemoved();
-void soundMasterRemoved();
+
