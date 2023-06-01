@@ -1,4 +1,5 @@
 #include "libs/RFID.h"
+#include "libs/sounds.h"
 
 bool masterMode = false;  // initialize programming mode to false
 bool successRead = false;    // Variable integer to keep if we have Successful Read from Reader
@@ -6,50 +7,8 @@ bool successRead = false;    // Variable integer to keep if we have Successful R
 byte readCard[4];   // Stores scanned ID read from RFID Module
 byte masterCard[4];   // Stores master card's ID read from EEPROM
 
-bool wipeState = false;   // Wipe State (Wipe Button)
-unsigned long startTime;  // Time of start of counting
 
-#define BUZZER_PIN 33
 
-void soundEntryMasterMode(){
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(100);
-  digitalWrite(BUZZER_PIN, LOW);
-  delay(50);
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(100);
-  digitalWrite(BUZZER_PIN, LOW);
-  delay(50);
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(100);
-  digitalWrite(BUZZER_PIN, LOW);
-}
-
-void soundExitMasterMode(){
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(500);
-  digitalWrite(BUZZER_PIN, LOW);
-  delay(50);
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(500);
-  digitalWrite(BUZZER_PIN, LOW);
-}
-
-void soundAllowed(){
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(100);
-  digitalWrite(BUZZER_PIN, LOW);
-  delay(50);
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(100);
-  digitalWrite(BUZZER_PIN, LOW);
-}
-
-void soundDenied(){
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(500);
-  digitalWrite(BUZZER_PIN, LOW);
-}
 
 void setPinInStateForTime(int timeInSeconds, int pin, int state) {
   digitalWrite(pin, state); // Define o pino como HIGH
@@ -68,11 +27,19 @@ void executeAfterTimeInState(void (*functionToExecute)(), unsigned long time, in
   }
 }
 
-void myFunc(){
-  Serial.println("Wipe Button pressed by 10 seconds!");
+void deleteMasterCard(){
+  Serial.println("Wipe Button pressed. In 10 seconds the master card will be erased!");
   clearMaster();
   Serial.println("Cleaning Master Card...");
 }
+
+void deleteAllCards(){
+  Serial.println("Wipe Button pressed. In 10 seconds all cards will be erased!");
+  clearCards();
+  Serial.println("Cleaning All Cards...");
+}
+
+
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
@@ -101,7 +68,7 @@ void setup() {
     Serial.println("Master Card defined");
   } else {
       Serial.println("Master Card already defined");
-      executeAfterTimeInState(myFunc, 10, WIPEBUTTON_PIN, HIGH);
+      executeAfterTimeInState(deleteMasterCard, 10, WIPEBUTTON_PIN, HIGH);
   }
 
 }
@@ -111,25 +78,11 @@ void setup() {
 void loop () {
   
   do { // Trying to scan a card
-    // Verify if the Wipe Button was pressed
-    if (digitalRead(WIPEBUTTON_PIN) == HIGH && !wipeState) {
-      wipeState = true;             // Toggle Wipe State
-      startTime = millis();         // Save time of start counting
-      Serial.println("Wipe Button pressed! (In 10 seconds all cards will be erased)");
-    }
-    // Verify if the Wipe Button was released
-    if (digitalRead(WIPEBUTTON_PIN) == LOW && wipeState) {
-      wipeState = false;            // Toggle Wipe State
-      unsigned long elapsedTime = millis() - startTime;  // Calculate spent time
-      if (elapsedTime >= 10000) {     // Verify if spent time is equals or greater then 10 seconds
-        Serial.println("Wipe Button pressed by 10 seconds!");
-        clearCards();
-        Serial.println("Cleaning all cards...");
-      }
-    }
-    if (!wipeState){
-      successRead = readRFID(readCard);  // sets successRead to 1 when we get read from reader otherwise 0
-    }
+   
+    executeAfterTimeInState(deleteAllCards, 10, WIPEBUTTON_PIN, HIGH);
+
+    successRead = readRFID(readCard);  // sets successRead to 1 when we get read from reader otherwise 0
+
   }
   while (!successRead);   //the program will not go further while you are not getting a successful read
   

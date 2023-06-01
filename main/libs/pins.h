@@ -22,7 +22,7 @@ Typical pin layout used:
 // Actuator pins definition:
 #define WIPEBUTTON_PIN 26
 #define LOCK_PIN 4
-#define BUZZER_PIN 2
+#define BUZZER_PIN 33
 
 //Position in memory that save how many cards are recorded in flash memory 
 #define slotMemory_nCards 0
