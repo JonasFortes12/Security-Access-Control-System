@@ -41,3 +41,9 @@ bool isMaster(byte card[]);
 bool readRFID(byte card[]);
 
 void setMaster(byte card[]);
+
+void clearMaster();
+
+void clearCards();
+
+void setNumCards(uint8_t num);
