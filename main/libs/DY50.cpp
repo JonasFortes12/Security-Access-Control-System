@@ -67,32 +67,55 @@ void storeFinger(int position){
     Serial.println(F("Sucesso!!!"));
 }
 
-void searchFinger(){
-    Serial.println(F("Encoste o dedo no sensor para buscar"));
-
+bool searchFinger(){
+    Serial.println("Procurando Digital");
     //Espera até pegar uma imagem válida da digital
     while (fingerprintSensor.getImage() != FINGERPRINT_OK);
+    // if(fingerprintSensor.getImage() != FINGERPRINT_OK){
+    //     return false;
+    // }
 
     //Converte a imagem para o padrão que será utilizado para verificar com o banco de digitais
     if (fingerprintSensor.image2Tz() != FINGERPRINT_OK){
         //Se chegou aqui deu erro, então abortamos os próximos passos
         Serial.println(F("Erro image2Tz"));
-        return;
+        return false;
     }
     
     //Procura por este padrão no banco de digitais
     if (fingerprintSensor.fingerFastSearch() != FINGERPRINT_OK){
         //Se chegou aqui significa que a digital não foi encontrada
         Serial.println(F("Digital não encontrada"));
-        return;
+        return false;
     }
 
     //Se chegou aqui a digital foi encontrada
+    return true;
     //Mostramos a posição onde a digital estava salva e a confiança
     //Quanto mais alta a confiança melhor
     Serial.print(F("Digital encontrada com confiança de "));
     Serial.print(fingerprintSensor.confidence);
     Serial.print(F(" na posição "));
     Serial.println(fingerprintSensor.fingerID);
+
+}
+
+bool readFinger(){
+    if(fingerprintSensor.getImage() == FINGERPRINT_OK){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+void deleteFinger(int position){
+
+    //Apaga a digital nesta posição
+    if(fingerprintSensor.deleteModel(position) != FINGERPRINT_OK){
+        Serial.println(F("Erro ao apagar digital"));
+    }
+    else{
+        Serial.println(F("Digital apagada com sucesso!!!"));
+    }
 
 }

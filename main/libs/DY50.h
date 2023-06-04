@@ -3,12 +3,14 @@
 
 void initFingerSensor();
 
-void storeFinger();
+void storeFinger(int position);
 
-void searchFinger();
+bool searchFinger();
 
-void deleteFinger();
+void deleteFinger(int position);
 
 void removeAllFingers();
 
 void getNumFingers();
+
+bool readFinger();
