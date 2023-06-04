@@ -1,5 +1,6 @@
 #include "libs/RFID.h"
 #include "libs/sounds.h"
+#include "libs/DY50.h"
 
 bool masterMode = false;  // initialize programming mode to false
 bool successRead = false;    // Variable integer to keep if we have Successful Read from Reader
@@ -54,6 +55,10 @@ void setup() {
   
   //Init RFID
   initRFIDModule();
+
+  //Init DY50
+  initFingerSensor();
+
 
   Serial.begin(9600);  // Initialize serial communications with PC   
 

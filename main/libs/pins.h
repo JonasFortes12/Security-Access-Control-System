@@ -20,8 +20,11 @@ Typical pin layout used:
 #define SCK_PIN 18
 
 
-// DY50 pins definition:
-
+ 
+/* DY50 pins: 
+   GPIO 16 - RX2
+   GPIO 17 - TX2
+*/
 
 
 // Actuator pins definition:

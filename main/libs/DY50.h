@@ -1,5 +1,14 @@
-#include "DY50.cpp"
+#include "./DY50.cpp"
 
 
+void initFingerSensor();
 
-void writeFinger();
+void storeFinger();
+
+void searchFinger();
+
+void deleteFinger();
+
+void removeAllFingers();
+
+void getNumFingers();
