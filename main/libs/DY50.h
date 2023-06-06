@@ -13,4 +13,4 @@ void removeAllFingers();
 
 void getNumFingers();
 
-bool readFinger();
+uint8_t readFinger();

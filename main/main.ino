@@ -1,6 +1,6 @@
 #include "libs/services.h"
 
-
+uint8_t fingerExists = 0;
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
@@ -28,7 +28,10 @@ void setup() {
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
 
-  tryScanAccessMethod();
+  do { // Trying to scan a card
+    successRead = tryScanAccessMethod(&fingerExists);
+  } while (!successRead);   //the program will not go further while you are not getting a successful read
+  
 
 
   if ( isMaster(readCard)) {    // If scanned card's ID matches Master Card's ID - enter program mode
@@ -46,13 +49,13 @@ void loop () {
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, HIGH);
       successRead = false;
-    }else if(searchFinger()){
+    }else if(fingerExists == 1){
       Serial.println("Welcome, You shall pass with finger");
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, HIGH);
       successRead = false;
     }
-    else {      // If not, show that the ID was not valid
+    else if(fingerExists == 2) {      // If not, show that the ID was not valid
       Serial.println("You shall not pass");
       soundDenied();
       successRead = false;

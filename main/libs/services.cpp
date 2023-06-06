@@ -62,20 +62,19 @@ void checkMasterDefinition(){
 
 }
 
-void tryScanAccessMethod(){
-  do { // Trying to scan a card
-    executeAfterTimeInState(deleteAllCards, 10, WIPEBUTTON_PIN, HIGH);
-    memset(readCard, 0, sizeof(readCard));
-    // sets successRead to 1 when we get read from reader otherwise 0
-    // sets successRead to 1 when we get a finger
-    if(readRFID(readCard) || readFinger()){
-      Serial.println("LEU");
-      successRead = true;
-    }
-
+bool tryScanAccessMethod(uint8_t* fingerExists){
+  executeAfterTimeInState(deleteAllCards, 10, WIPEBUTTON_PIN, HIGH);
+  memset(readCard, 0, sizeof(readCard));
+  // sets successRead to 1 when we get read from reader otherwise 0
+  // sets successRead to 1 when we get a finger
+  *fingerExists = readFinger();
+  if(readRFID(readCard) || *fingerExists != 0){
+    Serial.println("LEU");
+    return true;
+  }else{
+    Serial.println("Não LEU");
+    return false;
   }
-  while (!successRead);   //the program will not go further while you are not getting a successful read
-
 }
 
 void masterMode(){
@@ -100,7 +99,7 @@ void masterMode(){
         deleteFinger(1);
         soundCardRemoved();
       }
-      else if(readCard[0] != 0) {                    // If check readCard that is not null and is not known, add it!
+      else if(false) {                    // If check readCard that is not null and is not known, add it!
         Serial.println("I do not know this card, adding...");
         writeNewCard(readCard);
         soundCardDefined();
@@ -120,6 +119,7 @@ void masterMode(){
   
 
 }
+
 
 
 

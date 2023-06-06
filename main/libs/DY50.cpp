@@ -100,12 +100,31 @@ bool searchFinger(){
 
 }
 
-bool readFinger(){
-    if(fingerprintSensor.getImage() == FINGERPRINT_OK){
-        return true;
-    }else{
-        return false;
+// Returns 0 when no finger is detected | 1 when finger detected and exists | 2 when finger detected but not exists
+uint8_t readFinger(){
+    if(fingerprintSensor.getImage() != FINGERPRINT_OK){
+        return 0;
     }
+
+    //Converte a imagem para o padrão que será utilizado para verificar com o banco de digitais
+    if (fingerprintSensor.image2Tz() != FINGERPRINT_OK){
+        //Se chegou aqui deu erro, então abortamos os próximos passos
+        Serial.println(F("Erro image2Tz"));
+        return 0;
+    }
+    
+    //Procura por este padrão no banco de digitais
+    if (fingerprintSensor.fingerFastSearch() != FINGERPRINT_OK){
+        //Se chegou aqui significa que a digital não foi encontrada
+        Serial.println(F("Digital não encontrada"));
+        return 2;
+    }
+
+    //Se chegou aqui a digital foi encontrada
+    return 1;
+
+
+
 }
 
 void deleteFinger(int position){
