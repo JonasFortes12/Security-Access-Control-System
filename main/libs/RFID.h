@@ -47,3 +47,5 @@ void clearMaster();
 void clearCards();
 
 void setNumCards(uint8_t num);
+
+bool isCardNull(byte card[]);

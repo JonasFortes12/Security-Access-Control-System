@@ -94,25 +94,17 @@ void masterMode(){
         deleteCard(readCard);
         soundCardRemoved();
       }
-      else if(false){
-        Serial.println("I know this finger, removing...");
-        deleteFinger(1);
-        soundCardRemoved();
+      else if(readFinger() != 0){ // If some finger is detected
+        storeFinger();
+        soundCardDefined();
       }
-      else if(false) {                    // If check readCard that is not null and is not known, add it!
+      else if(isCardNull(readCard)){ // do nothing
+        continue;
+      }
+      else{ // If scanned card is NOT known add it
         Serial.println("I do not know this card, adding...");
         writeNewCard(readCard);
         soundCardDefined();
-      }
-      else if(!searchFinger()){
-        Serial.println("Dedo não encontrado!");
-        storeFinger(1);
-        soundCardDefined();
-        break;
-      }
-      else{
-        delay(1000);
-        continue;
       }
     }
   }while (true);

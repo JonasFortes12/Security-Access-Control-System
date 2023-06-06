@@ -16,7 +16,16 @@ void initFingerSensor(){
     }
 }
 
-void storeFinger(int position){
+uint8_t getNumFingers(){
+
+    fingerprintSensor.getTemplateCount();
+
+    return fingerprintSensor.templateCount;
+}
+
+
+void storeFinger(){
+    uint8_t position = getNumFingers() + 1;
     Serial.println(F("Encoste o dedo no sensor para armazenar"));
 
     // Espera até pegar uma imagem válida da digital
@@ -29,42 +38,51 @@ void storeFinger(int position){
         return;
     }
 
-    Serial.println(F("Tire o dedo do sensor"));
-
-    delay(2000);
-
-    // Espera até tirar o dedo
-    while (fingerprintSensor.getImage() != FINGERPRINT_NOFINGER);
-
-    // Antes de guardar precisamos de outra imagem da mesma digital
-    Serial.println(F("Encoste o mesmo dedo no sensor"));
-
-    // Espera até pegar uma imagem válida da digital
-    while (fingerprintSensor.getImage() != FINGERPRINT_OK);
-
-    // Converte a imagem para o segundo padrão
-    if (fingerprintSensor.image2Tz(2) != FINGERPRINT_OK){
-        // Se chegou aqui deu erro, então abortamos os próximos passos
-        Serial.println(F("Erro image2Tz 2"));
+    //Verificar se o dedo existe
+    //Procura por este padrão no banco de digitais
+    if (fingerprintSensor.fingerFastSearch() == FINGERPRINT_OK){ // se existe, remove
+        //Se chegou aqui significa que a digital foi encontrada
+        // deleteFinger(x);
         return;
-    }
+    } else { // se não existe, add
+        Serial.println(F("Tire o dedo do sensor"));
 
-    // Cria um modelo da digital a partir dos dois padrões
-    if (fingerprintSensor.createModel() != FINGERPRINT_OK){
-        // Se chegou aqui deu erro, então abortamos os próximos passos
-        Serial.println(F("Erro createModel"));
-        return;
-    }
+        // delay(2000);
 
-    // Guarda o modelo da digital no sensor
-    if (fingerprintSensor.storeModel(position) != FINGERPRINT_OK){
-        // Se chegou aqui deu erro, então abortamos os próximos passos
-        Serial.println(F("Erro storeModel"));
-        return;
-    }
+        // Espera até tirar o dedo
+        while (fingerprintSensor.getImage() != FINGERPRINT_NOFINGER);
 
-    // Se chegou aqui significa que todos os passos foram bem sucedidos
-    Serial.println(F("Sucesso!!!"));
+        // Antes de guardar precisamos de outra imagem da mesma digital
+        Serial.println(F("Encoste o mesmo dedo no sensor"));
+
+        // Espera até pegar uma imagem válida da digital
+        while (fingerprintSensor.getImage() != FINGERPRINT_OK);
+
+        // Converte a imagem para o segundo padrão
+        if (fingerprintSensor.image2Tz(2) != FINGERPRINT_OK){
+            // Se chegou aqui deu erro, então abortamos os próximos passos
+            Serial.println(F("Erro image2Tz 2"));
+            return;
+        }
+
+        // Cria um modelo da digital a partir dos dois padrões
+        if (fingerprintSensor.createModel() != FINGERPRINT_OK){
+            // Se chegou aqui deu erro, então abortamos os próximos passos
+            Serial.println(F("Erro createModel"));
+            return;
+        }
+
+        // Guarda o modelo da digital no sensor
+        if (fingerprintSensor.storeModel(position) != FINGERPRINT_OK){
+            // Se chegou aqui deu erro, então abortamos os próximos passos
+            Serial.println(F("Erro storeModel"));
+            return;
+        }
+
+        // Se chegou aqui significa que todos os passos foram bem sucedidos
+        Serial.println(F("Sucesso!!!"));
+    }
+    
 }
 
 bool searchFinger(){

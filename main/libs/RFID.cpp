@@ -197,3 +197,8 @@ void clearMaster(){
   setMaster(nullCard);
   exit(1);
 }
+
+bool isCardNull(byte card[]){
+  byte nullCard[4] = {0x0, 0x0, 0x0, 0x0};
+  return compare(nullCard, card);
+}
