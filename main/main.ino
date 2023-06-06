@@ -1,6 +1,7 @@
 #include "libs/services.h"
 
 uint8_t fingerExists = 0;
+bool cardVerified = false;
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
@@ -38,28 +39,27 @@ void loop () {
     soundEntryMasterMode();
     Serial.println("Hello Master - Entered Program Mode");
     uint8_t numCards = getNumCards();   // Read the first Byte of EEPROM that
-    Serial.println("I have ");     // stores the number of ID's in EEPROM
-    Serial.println(numCards);
+    Serial.print("I have ");     // stores the number of ID's in EEPROM
+    Serial.print(numCards);
     Serial.println(" record(s) on EEPROM");
     masterMode();
   } 
   else {
-    if ( cardExists(readCard)) { // If not, see if the card is in the EEPROM
+    cardVerified = cardExists(readCard);
+    if (cardVerified) { // If not, see if the card is in the EEPROM
       Serial.println("Welcome, You shall pass");
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, HIGH);
-      successRead = false;
+
     }else if(fingerExists == 1){
       Serial.println("Welcome, You shall pass with finger");
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, HIGH);
-      successRead = false;
     }
-    else if(fingerExists == 2) {      // If not, show that the ID was not valid
+
+    else if(fingerExists == 2 || !cardVerified) {      // If not, show that the ID was not valid
       Serial.println("You shall not pass");
       soundDenied();
-      successRead = false;
-
     }
   }
   
