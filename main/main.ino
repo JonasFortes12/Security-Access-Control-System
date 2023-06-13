@@ -41,11 +41,11 @@ void loop () {
     uint8_t numCards = getNumCards();   // Read the first Byte of EEPROM that
     Serial.print("I have ");     // stores the number of ID's in EEPROM
     Serial.print(numCards);
-    Serial.println("card(s) record(s) on EEPROM");
+    Serial.println(" card(s) record(s) on EEPROM");
     uint8_t numFingers = getNumFingers();
     Serial.print("I have ");     // stores the number of ID's in EEPROM
     Serial.print(numFingers);
-    Serial.println("finger(s) record(s) on EEPROM");
+    Serial.println(" finger(s) record(s) on EEPROM");
     masterMode();
   } 
   else {
