@@ -5,6 +5,24 @@ const uint32_t password = 0x0;
 
 Adafruit_Fingerprint fingerprintSensor = Adafruit_Fingerprint(&Serial2, password);
 
+uint16_t getFirstFreeSlot(void) {
+    for (uint16_t i = 1; i <= fingerprintSensor.capacity; i++) {
+      uint8_t result = fingerprintSensor.loadModel(i);
+      if (result == FINGERPRINT_OK) {
+        continue; // Slot is not free, move to the next slot
+      } else if (result == FINGERPRINT_BADLOCATION) {
+        // Slot is out of range, no more free slots available
+        return 0;
+      } else if (result == FINGERPRINT_PACKETRECIEVEERR) {
+        // Communication error occurred, return 0
+        return 0;
+      }
+      // Slot is free
+      return i;
+    }
+    return 0; // No free slot found
+  }
+
 void initFingerSensor(){
     // Inicializa o sensor
     fingerprintSensor.begin(57600);
@@ -23,10 +41,21 @@ uint8_t getNumFingers(){
     return fingerprintSensor.templateCount;
 }
 
+void deleteFinger(uint8_t position){
 
-void storeFinger(){
-    uint8_t position = getNumFingers() + 1;
-    Serial.println(F("Encoste o dedo no sensor para armazenar"));
+    //Apaga a digital nesta posição
+    if(fingerprintSensor.deleteModel(position) != FINGERPRINT_OK){
+        Serial.println(F("Erro ao apagar digital"));
+    }
+    else{
+        // shiftBackFrom(position);
+        Serial.println(F("Digital apagada com sucesso!!!"));
+    }
+
+}
+
+void storeFinger(uint8_t option){
+    uint16_t position = getFirstFreeSlot();
 
     // Espera até pegar uma imagem válida da digital
     while (fingerprintSensor.getImage() != FINGERPRINT_OK);
@@ -40,14 +69,18 @@ void storeFinger(){
 
     //Verificar se o dedo existe
     //Procura por este padrão no banco de digitais
-    if (fingerprintSensor.fingerFastSearch() == FINGERPRINT_OK){ // se existe, remove
+    // uint8_t storaged_position = fingerprintSensor.fingerFastSearch();
+    if (option == 1){ // se existe, remove
         //Se chegou aqui significa que a digital foi encontrada
-        // deleteFinger(x);
+        Serial.println("Digital encontrada! Apagando...");
+        deleteFinger(fingerprintSensor.fingerID);
+        delay(800);
         return;
     } else { // se não existe, add
+        
+        Serial.println("Digital não encontrada! Cadastrando...");
         Serial.println(F("Tire o dedo do sensor"));
 
-        // delay(2000);
 
         // Espera até tirar o dedo
         while (fingerprintSensor.getImage() != FINGERPRINT_NOFINGER);
@@ -81,6 +114,7 @@ void storeFinger(){
 
         // Se chegou aqui significa que todos os passos foram bem sucedidos
         Serial.println(F("Sucesso!!!"));
+        delay(800);
     }
     
 }
@@ -145,14 +179,3 @@ uint8_t readFinger(){
 
 }
 
-void deleteFinger(int position){
-
-    //Apaga a digital nesta posição
-    if(fingerprintSensor.deleteModel(position) != FINGERPRINT_OK){
-        Serial.println(F("Erro ao apagar digital"));
-    }
-    else{
-        Serial.println(F("Digital apagada com sucesso!!!"));
-    }
-
-}

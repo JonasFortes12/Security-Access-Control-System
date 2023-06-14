@@ -37,6 +37,7 @@ void deleteMasterCard(){
 void deleteAllCards(){
   Serial.println("Wipe Button pressed. In 10 seconds all cards will be erased!");
   clearCards();
+  fingerprintSensor.emptyDatabase();
   soundAllCardsRemoved();
   Serial.println("Cleaning All Cards...");
 }
@@ -67,6 +68,7 @@ bool tryScanAccessMethod(uint8_t* fingerExists){
   memset(readCard, 0, sizeof(readCard));
   // sets successRead to 1 when we get read from reader otherwise 0
   // sets successRead to 1 when we get a finger
+  uint8_t fingerId;
   *fingerExists = readFinger();
   if(readRFID(readCard) || *fingerExists != 0){
     Serial.println("LEU");
@@ -81,6 +83,7 @@ void masterMode(){
   do{
     memset(readCard, 0, sizeof(readCard));
     readRFID(readCard);
+    uint8_t fingerAnswer = readFinger();
     
     if ( isMaster(readCard) ) { //When in program mode check First If master card scanned again to exit program mode
       Serial.println("Master Card scanned");
@@ -94,8 +97,8 @@ void masterMode(){
         deleteCard(readCard);
         soundCardRemoved();
       }
-      else if(readFinger() != 0){ // If some finger is detected
-        storeFinger();
+      else if(fingerAnswer != 0){ // If some finger is detected
+        storeFinger(fingerAnswer);
         soundCardDefined();
       }
       else if(isCardNull(readCard)){ // do nothing
