@@ -1,7 +1,7 @@
 #include "RFID.h"
 #include "sounds.h"
 #include "DY50.h"
-#include <LiquidCrystal.h>
+#include "lcd.h"
 #include "pins.h"
 
 // bool masterMode = false;  // initialize programming mode to false
@@ -9,23 +9,6 @@ bool successRead = false;    // Variable integer to keep if we have Successful R
 
 byte readCard[4];   // Stores scanned ID read from RFID Module
 byte masterCard[4];   // Stores master card's ID read from EEPROM
-
-// initialize the library with the numbers of the interface pins
-LiquidCrystal lcd(RS_PIN, E_PIN, D4_PIN, D5_PIN, D6_PIN, D7_PIN);
-
-void setupLCD(){
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
-}
-
-void showMessage(char msg[], uint8_t line){
-  // set the cursor to column 0, line 1
-  // (note: line 1 is the second row, since counting begins with 0):
-  lcd.setCursor(0, line);
-  // print the number of seconds since reset:
-  lcd.print(msg);
-}
-
 
 void setPinInStateForTime(int timeInSeconds, int pin, int state) {
   digitalWrite(pin, state); // Define o pino como HIGH
@@ -129,6 +112,7 @@ void masterMode(){
     }
   }while (true);
   
+  clearLCD();
 
 }
 

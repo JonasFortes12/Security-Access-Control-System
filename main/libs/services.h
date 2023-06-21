@@ -1,9 +1,5 @@
 #include "services.cpp"
 
-void setupLCD();
-
-void showMessage(char msg[], uint8_t line);
-
 void checkMasterDefinition();
 
 void setPinInStateForTime(int timeInSeconds, int pin, int state);

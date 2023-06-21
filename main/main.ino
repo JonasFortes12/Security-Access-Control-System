@@ -25,7 +25,6 @@ void setup() {
   Serial.begin(9600);  // Initialize serial communications with PC   
 
   checkMasterDefinition();
-  showMessage("Jonas Fortes",0);
 }
 
 
@@ -40,6 +39,7 @@ void loop () {
 
   if ( isMaster(readCard)) {    // If scanned card's ID matches Master Card's ID - enter program mode
     soundEntryMasterMode();
+    showEntryMasterModeMessage();
     Serial.println("Hello Master - Entered Program Mode");
     uint8_t numCards = getNumCards();   // Read the first Byte of EEPROM that
     Serial.print("I have ");     // stores the number of ID's in EEPROM
@@ -55,17 +55,20 @@ void loop () {
     cardVerified = cardExists(readCard);
     if (cardVerified) { // If not, see if the card is in the EEPROM
       Serial.println("Welcome, You shall pass");
+      showAllowedMessage();
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, HIGH);
 
     }else if(fingerExists == 1){
       Serial.println("Welcome, You shall pass with finger");
+      showAllowedMessage();
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, HIGH);
     }
 
     else if(fingerExists == 2 || !cardVerified) {      // If not, show that the ID was not valid
       Serial.println("You shall not pass");
+      showDaniedMessage();
       soundDenied();
     }
   }
