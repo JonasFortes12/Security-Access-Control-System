@@ -3,6 +3,7 @@
 uint8_t fingerExists = 0;
 bool cardVerified = false;
 
+
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
 
@@ -18,11 +19,13 @@ void setup() {
   //Init DY50
   initFingerSensor();
 
+  setupLCD();
+
   //Init Serial 
   Serial.begin(9600);  // Initialize serial communications with PC   
 
   checkMasterDefinition();
-  
+  showMessage("Jonas Fortes",0);
 }
 
 
