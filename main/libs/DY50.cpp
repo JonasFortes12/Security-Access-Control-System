@@ -48,14 +48,14 @@ void deleteFinger(uint8_t position){
         Serial.println(F("Erro ao apagar digital"));
     }
     else{
-        // shiftBackFrom(position);
+        // TODO: Apagar o ID da digital (position == fingerID) no cadastro do firebase
         Serial.println(F("Digital apagada com sucesso!!!"));
     }
 
 }
 
 void storeFinger(uint8_t option){
-    uint16_t position = getFirstFreeSlot();
+    uint16_t position = getFirstFreeSlot();// used as ID of the finger
 
     // Espera até pegar uma imagem válida da digital
     while (fingerprintSensor.getImage() != FINGERPRINT_OK);
@@ -73,7 +73,8 @@ void storeFinger(uint8_t option){
     if (option == 1){ // se existe, remove
         //Se chegou aqui significa que a digital foi encontrada
         Serial.println("Digital encontrada! Apagando...");
-        deleteFinger(fingerprintSensor.fingerID);
+        //TODO: Apagar o ID da digital (position == fingerID) no cadastro do firebase
+        deleteFinger(fingerprintSensor.fingerID); 
         delay(800);
         return;
     } else { // se não existe, add
@@ -111,6 +112,10 @@ void storeFinger(uint8_t option){
             Serial.println(F("Erro storeModel"));
             return;
         }
+
+        // TODO: Cadastra o ID da digital (position == fingerID) no cadastro do fireabse
+        // TODO: Implementar o cadastro no firebase
+
 
         // Se chegou aqui significa que todos os passos foram bem sucedidos
         Serial.println(F("Sucesso!!!"));

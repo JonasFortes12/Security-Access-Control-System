@@ -81,9 +81,13 @@ bool tryScanAccessMethod(uint8_t* fingerExists){
 
 void masterMode(){
   do{
-    memset(readCard, 0, sizeof(readCard));
-    readRFID(readCard);
-    uint8_t fingerAnswer = readFinger();
+    memset(readCard, 0, sizeof(readCard)); // Limpa o readCard para ler um novo cartão
+    
+    readRFID(readCard); // Read a card from RFID Module
+
+    // Read a finger from DY50 Module e verifica se já está cadastrado ou não
+    // retorna 0 quando não há dedo, 1 quando o dedo existe e 2 quando o dedo não existe
+    uint8_t fingerAnswer = readFinger(); 
     
     if ( isMaster(readCard) ) { //When in program mode check First If master card scanned again to exit program mode
       Serial.println("Master Card scanned");
