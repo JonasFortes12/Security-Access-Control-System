@@ -16,18 +16,36 @@ FirebaseData fbdo;
 
 void setupFirebase() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) delay(200);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(200);
+    Serial.print(".");
+  }
 
+  Serial.println();
   Serial.println("WiFi conectado: " + WiFi.localIP().toString());
 
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
-  config.signer.tokens.legacy_token = ""; // uso anônimo
+
+  //habilita token anônimo
+  if (Firebase.signUp(&config, &auth, "", "")) {
+    Serial.println("✅ Autenticado anonimamente!");
+  } else {
+    Serial.printf("❌ Erro ao autenticar: %s\n", config.signer.signupError.message.c_str());
+    return; // Sai para evitar continuar sem autenticação
+  }
 
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
 
-  Serial.println("Firebase configurado com sucesso!");
+  delay(1000);  // Tempo para garantir que o token foi obtido
+
+  if (Firebase.ready()) {
+    Serial.println("✅ Firebase está pronto para uso.");
+  } else {
+    Serial.println("❌ Firebase não está pronto.");
+  }
+
 }
 
 // Função auxiliar para gerar ID
@@ -58,9 +76,22 @@ bool registerUserFinger(const String &username, const String &email, uint8_t fin
   js.set("fingerId", fingerId);
   js.set("createdAt", millis());  // timestamp alternativo
 
-  String id = genId();
-  bool ok = Firebase.RTDB.setJSON(&fbdo, "/users/" + id, &js);
-  if (ok) Firebase.RTDB.deleteNode(&fbdo, "/pendingUser/current");
+  String id = String(fingerId);
+  String path = "/users/" + id;
+
+  Serial.println("Enviando dados para: " + path);
+  Serial.println("Nome: " + username + " | Email: " + email + " | FingerID: " + String(fingerId));
+
+  bool ok = Firebase.RTDB.setJSON(&fbdo, path, &js);
+
+  if (ok) {
+    Serial.println("✅ Usuário registrado com sucesso.");
+    Firebase.RTDB.deleteNode(&fbdo, "/pendingUser/current");
+  } else {
+    Serial.println("❌ Falha ao registrar usuário.");
+    Serial.println("Erro: " + fbdo.errorReason());
+  }
+
   return ok;
 }
 
