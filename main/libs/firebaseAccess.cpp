@@ -3,7 +3,7 @@
 #include "firebaseAccess.h"
 #include <WiFi.h>
 #include <vector>
-#include <time.h>  // Para timestamp com NTP, se configurado
+#include <time.h> 
 
 #define WIFI_SSID "AP01_VALLEY"
 #define WIFI_PASSWORD "amontada"
@@ -48,9 +48,38 @@ void setupFirebase() {
 
 }
 
-// Função auxiliar para gerar ID
-static String genId() {
-  return String("user_") + String(millis());
+void setupTime() {
+  // Configura o fuso horário para UTC-3 (Brasil)
+  configTime(-3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+
+  struct tm timeinfo;
+  int retry = 0;
+  const int retryCount = 10;
+
+  // Tenta sincronizar com NTP (máx. 10 tentativas)
+  while (!getLocalTime(&timeinfo) && retry++ < retryCount) {
+    Serial.println("⏳ Aguardando sincronização com NTP...");
+    delay(1000);
+  }
+
+  if (retry < retryCount) {
+    Serial.println("✅ NTP sincronizado com sucesso.");
+    Serial.println(&timeinfo, "🕓 Hora atual: %Y-%m-%d %H:%M:%S");
+  } else {
+    Serial.println("❌ Falha ao sincronizar NTP.");
+  }
+}
+
+// Função auxiliar para obter o timestamp atual
+String getCurrentTimestamp() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    return "1970-01-01 00:00:00";  // fallback se NTP não estiver pronto
+  }
+
+  char buffer[20];
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
+  return String(buffer);
 }
 
 // 1) Pega usuário pendente
@@ -74,9 +103,9 @@ bool registerUserFinger(const String &username, const String &email, uint8_t fin
   js.set("username", username);
   js.set("email", email);
   js.set("fingerId", fingerId);
-  js.set("createdAt", millis());  // timestamp alternativo
+  js.set("createdAt", getCurrentTimestamp()); 
 
-  String id = String(fingerId);
+  String id = "user_finger_id_" + String(fingerId);
   String path = "/users/" + id;
 
   Serial.println("Enviando dados para: " + path);
@@ -96,21 +125,21 @@ bool registerUserFinger(const String &username, const String &email, uint8_t fin
 }
 
 // 3) Cadastra usuário por RFID
-bool registerUserRFID(const String &username, const String &email, const String &cardId) {
+bool registerUserRFID(const String &username, const String &email, const uint8_t &cardId) {
   FirebaseJson js;
   js.set("username", username);
   js.set("email", email);
   js.set("rfid", cardId);
-  js.set("createdAt", millis());  // timestamp alternativo
+  js.set("createdAt", getCurrentTimestamp());  // timestamp alternativo
 
-  String id = genId();
+  String id = "user_card_id_" + String(cardId);
   bool ok = Firebase.RTDB.setJSON(&fbdo, "/users/" + id, &js);
   if (ok) Firebase.RTDB.deleteNode(&fbdo, "/pendingUser/current");
   return ok;
 }
 
 // Auxiliar: encontra caminho do usuário
-static bool findUserBy(const String &node, const String &field, const String &value, String &outPath) {
+static bool findUserBy(const String &node, const String &field, const uint8_t &value, String &outPath) {
   if (!Firebase.RTDB.getJSON(&fbdo, node)) return false;
 
   FirebaseJson &js = fbdo.to<FirebaseJson>();
@@ -121,8 +150,8 @@ static bool findUserBy(const String &node, const String &field, const String &va
     String key = it.key;
     String path = node + "/" + key + "/" + field;
 
-    if (Firebase.RTDB.getString(&fbdo, path)) {
-      if (fbdo.stringData() == value) {
+    if (Firebase.RTDB.getInt(&fbdo, path)) {
+      if (fbdo.intData() == value) {
         outPath = node + "/" + key;
         js.iteratorEnd();
         return true;
@@ -137,13 +166,13 @@ static bool findUserBy(const String &node, const String &field, const String &va
 // 4) Remove usuário por fingerId
 bool deleteUserFinger(uint8_t fingerId) {
   String path;
-  if (findUserBy("/users", "fingerId", String(fingerId), path))
+  if (findUserBy("/users", "fingerId", fingerId, path))
     return Firebase.RTDB.deleteNode(&fbdo, path);
   return false;
 }
 
 // 5) Remove usuário por RFID
-bool deleteUserRFID(const String &cardId) {
+bool deleteUserRFID(const uint8_t &cardId) {
   String path;
   if (findUserBy("/users", "rfid", cardId, path))
     return Firebase.RTDB.deleteNode(&fbdo, path);
@@ -151,16 +180,31 @@ bool deleteUserRFID(const String &cardId) {
 }
 
 // 6) Loga tentativa de acesso
-bool logAccess(const String &type, const String &key) {
+bool logAccess(const String &type, const uint8_t &key) {
   String userPath;
   if (!findUserBy("/users", type, key, userPath)) return false;
 
+  // Variáveis para armazenar dados do usuário
+  String username;
+  String email;
+
+  // Lê o nome do usuário
+  if (Firebase.RTDB.getString(&fbdo, userPath + "/username")) {
+    username = fbdo.stringData();
+  }
+
+  // Lê o e-mail do usuário
+  if (Firebase.RTDB.getString(&fbdo, userPath + "/email")) {
+    email = fbdo.stringData();
+  }
+
   FirebaseJson log;
+  log.set("userName", username);
+  log.set("userEmail", email);
   log.set("userPath", userPath);
   log.set("accessType", type);
-  log.set("accessKey", key);
-  log.set("timestamp", millis());  // ou use time(NULL) se NTP configurado
+  log.set("timestamp", getCurrentTimestamp());  // ou use time(NULL) se NTP configurado
 
-  String id = String("log_") + String(millis());
+  String id = String("log_") + millis(); // ID único baseado no tempo atual
   return Firebase.RTDB.setJSON(&fbdo, "/logs/" + id, &log);
 }

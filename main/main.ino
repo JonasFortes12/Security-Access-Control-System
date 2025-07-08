@@ -8,7 +8,7 @@ bool cardVerified = false;
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
 
-   // pins definitions
+  // pins definitions
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LOCK_PIN, OUTPUT);
   digitalWrite(LOCK_PIN, LOW);
@@ -20,16 +20,22 @@ void setup() {
   //Init DY50
   initFingerSensor();
 
+  //Init Display
   setupLCD();
 
   //Init Serial 
   Serial.begin(9600);  // Initialize serial communications with PC   
 
+  // Check if Master Card is defined
   checkMasterDefinition();
 
   //init firebase connection
   setupFirebase();
 
+  //init time for logging timestamp
+  setupTime();
+
+  
   String pendingUsername;
   String pendingEmail;
 
@@ -41,21 +47,32 @@ void setup() {
     Serial.println("Nenhum usuário pendente encontrado.");
   }
 
-  //TODO: Alterar a definição de createAt ao registrar usuário: Usar formato de data e hora
+
   // Register user by finger (testing)
   if (registerUserFinger(pendingUsername, pendingEmail, 1)) {
     Serial.println("Usuário registrado com sucesso por digital.");
   } else {
     Serial.println("Falha ao registrar usuário por digital.");
   }
+  // Register user by RFID (testing)
+  if (registerUserRFID(pendingUsername, pendingEmail, 2)) {
+    Serial.println("Usuário registrado com sucesso por RFID.");
+  } else {
+    Serial.println("Falha ao registrar usuário por RFID.");
+  }
 
   delay(3000); // dá tempo do Firebase "indexar" a escrita
 
-  //TODO: Alterar a definição de timestamp ao registrar log: Usar formato de data e hora
-  //TODO: Alterar a definição de log id ao registrar log: Usar formato de data e hora
-  //TODO: Verificar falha ao registrar log, mesmo com o usuário já resgistrado(fingerId = 1)
+
   // Log access (testing)
-  if (logAccess("fingerId", "1")) {
+  if (logAccess("fingerId", 1)) {
+    Serial.println("Acesso registrado com sucesso.");
+  } else {
+    Serial.println("Falha ao registrar acesso.");
+  }
+
+  // Log access (testing)
+  if (logAccess("rfid", 2)) {
     Serial.println("Acesso registrado com sucesso.");
   } else {
     Serial.println("Falha ao registrar acesso.");
