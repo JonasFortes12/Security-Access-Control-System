@@ -208,3 +208,14 @@ bool logAccess(const String &type, const uint8_t &key) {
   String id = String("log_") + millis(); // ID único baseado no tempo atual
   return Firebase.RTDB.setJSON(&fbdo, "/logs/" + id, &log);
 }
+
+// 7) Limpa o usuário pendente atual
+bool clearPendingUser() {
+  bool ok = Firebase.RTDB.deleteNode(&fbdo, "/pendingUser/current");
+  if (ok) {
+    Serial.println("🧹 Usuário pendente limpo com sucesso.");
+  } else {
+    Serial.println("⚠️ Falha ao limpar usuário pendente.");
+  }
+  return ok;
+}

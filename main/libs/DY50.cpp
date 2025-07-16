@@ -1,4 +1,10 @@
 #include <Adafruit_Fingerprint.h>
+#include "firebaseAccess.h"
+
+
+// Variables for storing user data coming from Firebase
+String pendingUsernameForUserFinger;
+String pendingEmailForUserFinger;
 
 // Default password of DY50 module
 const uint32_t password = 0x0;
@@ -48,7 +54,6 @@ void deleteFinger(uint8_t position){
         Serial.println(F("Erro ao apagar digital"));
     }
     else{
-        // TODO: Apagar o ID da digital (position == fingerID) no cadastro do firebase
         Serial.println(F("Digital apagada com sucesso!!!"));
     }
 
@@ -73,8 +78,18 @@ void storeFinger(uint8_t option){
     if (option == 1){ // se existe, remove
         //Se chegou aqui significa que a digital foi encontrada
         Serial.println("Digital encontrada! Apagando...");
-        //TODO: Apagar o ID da digital (position == fingerID) no cadastro do firebase
-        deleteFinger(fingerprintSensor.fingerID); 
+
+        // Mostramos a posição onde a digital estava salva e a confiança
+        uint8_t fingerId = fingerprintSensor.fingerID;
+
+        deleteFinger(fingerId); 
+        // Apaga o registro no Firebase
+        if (deleteUserFinger(fingerId)) {
+            Serial.println("✅ Usuário Finger removido com sucesso do Firebase.");
+        } else {
+            Serial.println("❌ Falha ao remover usuário Finger do Firebase.");
+        }
+
         delay(800);
         return;
     } else { // se não existe, add
@@ -113,8 +128,20 @@ void storeFinger(uint8_t option){
             return;
         }
 
-        // TODO: Cadastra o ID da digital (position == fingerID) no cadastro do fireabse
-        // TODO: Implementar o cadastro no firebase
+        // Registrar no Firebase, se houver usuário pendente
+        if (getPendingUser(pendingUsernameForUserFinger, pendingEmailForUserFinger)) {
+          if (!registerUserFinger(pendingUsernameForUserFinger, pendingEmailForUserFinger, position)) {
+            Serial.println("❌ Falha ao registrar usuário com FingerID no Firebase.");
+          } else {
+            Serial.println("✅ Usuário registrado com FingerID no Firebase.");
+          }
+          // Limpa dados locais
+          pendingUsernameForUserFinger = "";
+          pendingEmailForUserFinger = "";
+          clearPendingUser();
+        } else {
+          Serial.println("Nenhum usuário pendente encontrado.");
+        }
 
 
         // Se chegou aqui significa que todos os passos foram bem sucedidos

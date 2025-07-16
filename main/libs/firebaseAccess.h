@@ -22,6 +22,7 @@ bool registerUserFinger(const String &username, const String &email, uint8_t fin
 bool registerUserRFID(const String &username, const String &email, const uint8_t &cardId);
 bool deleteUserFinger(uint8_t fingerId);
 bool deleteUserRFID(const uint8_t &cardId);
+bool clearPendingUser();
 
 bool logAccess(const String &type, const uint8_t &key);
 

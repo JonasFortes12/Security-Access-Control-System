@@ -3,12 +3,17 @@
 #include "DY50.h"
 #include "lcd.h"
 #include "pins.h"
+#include "firebaseAccess.h"
 
 // bool masterMode = false;  // initialize programming mode to false
 bool successRead = false;    // Variable integer to keep if we have Successful Read from Reader
 
 byte readCard[4];   // Stores scanned ID read from RFID Module
 byte masterCard[4];   // Stores master card's ID read from EEPROM
+
+// Variables for storing user data coming from Firebase
+String pendingUsername;
+String pendingEmail;
 
 void setPinInStateForTime(int timeInSeconds, int pin, int state) {
   digitalWrite(pin, state); // Define o pino como HIGH
@@ -96,21 +101,49 @@ void masterMode(){
       break;
     } 
     else {
+      
       if ( cardExists(readCard)) { // If scanned card is known delete it
         Serial.println("I know this card, removing...");
+        
+        if(deleteUserRFID(findCardIndex(readCard))){
+          Serial.println("Usuário Card removido com sucesso do Firebase.");
+        } else {
+          Serial.println("Falha ao remover usuário card do Firebase.");
+        }
+        
         deleteCard(readCard);
         soundCardRemoved();
       }
+      
       else if(fingerAnswer != 0){ // If some finger is detected
         storeFinger(fingerAnswer);
         soundCardDefined();
       }
+      
       else if(isCardNull(readCard)){ // do nothing
         continue;
       }
+      
       else{ // If scanned card is NOT known add it
         Serial.println("I do not know this card, adding...");
         writeNewCard(readCard);
+
+        // Check if there is a pending user in Firebase and register the card in Firebase
+        if (getPendingUser(pendingUsername, pendingEmail)) {
+          uint8_t readCardId =  findCardIndex(readCard);// Get the index of the card in EEPROM
+          if (!registerUserRFID(pendingUsername, pendingEmail, readCardId)) {
+             Serial.println("Falha ao registrar usuário com CardId no Firebase.");
+          }
+          
+          // Clear the pending user data
+          pendingUsername = "";
+          pendingEmail = "";
+          clearPendingUser();
+
+        } else {
+          Serial.println("Nenhum usuário pendente encontrado.");
+        }
+
         soundCardDefined();
       }
     }

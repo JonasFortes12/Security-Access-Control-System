@@ -34,50 +34,6 @@ void setup() {
 
   //init time for logging timestamp
   setupTime();
-
-  
-  String pendingUsername;
-  String pendingEmail;
-
-  if (getPendingUser(pendingUsername, pendingEmail)) {
-    Serial.println("Usuário pendente encontrado:");
-    Serial.println("Nome: " + pendingUsername);
-    Serial.println("Email: " + pendingEmail);
-  } else {
-    Serial.println("Nenhum usuário pendente encontrado.");
-  }
-
-
-  // Register user by finger (testing)
-  if (registerUserFinger(pendingUsername, pendingEmail, 1)) {
-    Serial.println("Usuário registrado com sucesso por digital.");
-  } else {
-    Serial.println("Falha ao registrar usuário por digital.");
-  }
-  // Register user by RFID (testing)
-  if (registerUserRFID(pendingUsername, pendingEmail, 2)) {
-    Serial.println("Usuário registrado com sucesso por RFID.");
-  } else {
-    Serial.println("Falha ao registrar usuário por RFID.");
-  }
-
-  delay(3000); // dá tempo do Firebase "indexar" a escrita
-
-
-  // Log access (testing)
-  if (logAccess("fingerId", 1)) {
-    Serial.println("Acesso registrado com sucesso.");
-  } else {
-    Serial.println("Falha ao registrar acesso.");
-  }
-
-  // Log access (testing)
-  if (logAccess("rfid", 2)) {
-    Serial.println("Acesso registrado com sucesso.");
-  } else {
-    Serial.println("Falha ao registrar acesso.");
-  }
-  
 }
 
 
