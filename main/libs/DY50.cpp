@@ -185,7 +185,10 @@ bool searchFinger(){
 }
 
 // Returns 0 when no finger is detected | 1 when finger detected and exists | 2 when finger detected but not exists
-uint8_t readFinger(){
+uint8_t readFinger(uint8_t *fingerIdRead) {
+    
+    *fingerIdRead = -1; // valor padrão: nenhum ID
+    
     if(fingerprintSensor.getImage() != FINGERPRINT_OK){
         return 0;
     }
@@ -203,6 +206,10 @@ uint8_t readFinger(){
         Serial.println(F("Digital não encontrada"));
         return 2;
     }
+
+    //Se chegou aqui significa que a digital foi encontrada
+    *fingerIdRead = fingerprintSensor.fingerID; // Armazena o ID da digital lida
+
 
     //Se chegou aqui a digital foi encontrada
     return 1;

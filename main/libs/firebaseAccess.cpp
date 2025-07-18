@@ -4,15 +4,18 @@
 #include <WiFi.h>
 #include <vector>
 #include <time.h> 
-
-#define WIFI_SSID "AP01_VALLEY"
-#define WIFI_PASSWORD "amontada"
-#define API_KEY "AIzaSyCYQTzRRibzV0ASConlxHp-lpvmKhnNGOs"
-#define DATABASE_URL "https://security-access-control-b3a72-default-rtdb.firebaseio.com"
+#include "secrets.h"
 
 FirebaseAuth auth;
 FirebaseConfig config;
 FirebaseData fbdo;
+
+// Definições de tipos de acesso
+enum class AccessType {
+  RFID,
+  FINGER
+};
+
 
 void setupFirebase() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -125,7 +128,7 @@ bool registerUserFinger(const String &username, const String &email, uint8_t fin
 }
 
 // 3) Cadastra usuário por RFID
-bool registerUserRFID(const String &username, const String &email, const uint8_t &cardId) {
+bool registerUserRFID(const String &username, const String &email, const uint8_t cardId) {
   FirebaseJson js;
   js.set("username", username);
   js.set("email", email);
@@ -180,9 +183,19 @@ bool deleteUserRFID(const uint8_t &cardId) {
 }
 
 // 6) Loga tentativa de acesso
-bool logAccess(const String &type, const uint8_t &key) {
+bool logAccess(AccessType type, const uint8_t &key) {
+  String typeAccess;
+  switch (type) {
+    case AccessType::RFID:
+      typeAccess = "rfid";
+      break;
+    case AccessType::FINGER:
+      typeAccess = "fingerId";
+      break;
+  }
+
   String userPath;
-  if (!findUserBy("/users", type, key, userPath)) return false;
+  if (!findUserBy("/users", typeAccess, key, userPath)) return false;
 
   // Variáveis para armazenar dados do usuário
   String username;
@@ -202,7 +215,7 @@ bool logAccess(const String &type, const uint8_t &key) {
   log.set("userName", username);
   log.set("userEmail", email);
   log.set("userPath", userPath);
-  log.set("accessType", type);
+  log.set("accessType", typeAccess);
   log.set("timestamp", getCurrentTimestamp());  // ou use time(NULL) se NTP configurado
 
   String id = String("log_") + millis(); // ID único baseado no tempo atual

@@ -10,6 +10,6 @@ void deleteMasterCard();
 
 void deleteAllCards();
 
-bool tryScanAccessMethod(uint8_t* fingerExists);
+bool tryScanAccessMethod(uint8_t* fingerExists, uint8_t* fingerIdRead);
 
 void masterMode();

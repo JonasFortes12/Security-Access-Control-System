@@ -9,10 +9,7 @@ bool searchFinger();
 
 void deleteFinger(uint8_t position);
 
-void removeAllFingers();
-
 uint8_t getNumFingers();
 
-uint8_t readFinger();
+uint8_t readFinger(uint8_t *fingerIdRead);
 
-void shiftBackFrom(uint8_t begin);

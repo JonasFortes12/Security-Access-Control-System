@@ -11,6 +11,11 @@ bool successRead = false;    // Variable integer to keep if we have Successful R
 byte readCard[4];   // Stores scanned ID read from RFID Module
 byte masterCard[4];   // Stores master card's ID read from EEPROM
 
+uint8_t fingerExists = 0; // Variable to keep if we have a finger detected or not
+uint8_t fingerIdRead = -1; // Variable to keep the ID of the finger read, default is -1 (no ID)
+bool cardVerified = false; // Variable to keep if the card is verified or not
+
+
 // Variables for storing user data coming from Firebase
 String pendingUsername;
 String pendingEmail;
@@ -68,18 +73,17 @@ void checkMasterDefinition(){
 
 }
 
-bool tryScanAccessMethod(uint8_t* fingerExists){
+bool tryScanAccessMethod(uint8_t* fingerExists, uint8_t* fingerIdRead) {
   executeAfterTimeInState(deleteAllCards, 10, WIPEBUTTON_PIN, HIGH);
   memset(readCard, 0, sizeof(readCard));
   // sets successRead to 1 when we get read from reader otherwise 0
   // sets successRead to 1 when we get a finger
-  uint8_t fingerId;
-  *fingerExists = readFinger();
+  *fingerExists = readFinger(fingerIdRead); // Read a finger from DY50 Module and check if it exists or not
   if(readRFID(readCard) || *fingerExists != 0){
-    Serial.println("LEU");
+    Serial.println("LEU entrada de cartão ou dedo");
     return true;
   }else{
-    Serial.println("Não LEU");
+    Serial.println("Não LEU entrada de cartão ou dedo");
     return false;
   }
 }
@@ -92,7 +96,7 @@ void masterMode(){
 
     // Read a finger from DY50 Module e verifica se já está cadastrado ou não
     // retorna 0 quando não há dedo, 1 quando o dedo existe e 2 quando o dedo não existe
-    uint8_t fingerAnswer = readFinger(); 
+    uint8_t fingerAnswer = readFinger(&fingerIdRead); 
     
     if ( isMaster(readCard) ) { //When in program mode check First If master card scanned again to exit program mode
       Serial.println("Master Card scanned");
