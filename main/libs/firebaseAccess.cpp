@@ -57,12 +57,12 @@ void setupTime() {
 
   struct tm timeinfo;
   int retry = 0;
-  const int retryCount = 10;
+  const int retryCount = 2;
 
   // Tenta sincronizar com NTP (máx. 10 tentativas)
   while (!getLocalTime(&timeinfo) && retry++ < retryCount) {
     Serial.println("⏳ Aguardando sincronização com NTP...");
-    delay(1000);
+    delay(600);
   }
 
   if (retry < retryCount) {

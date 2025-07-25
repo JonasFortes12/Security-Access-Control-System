@@ -43,6 +43,6 @@ Typical pin layout used:
 #define RS_PIN 15
 #define E_PIN 2
 #define D4_PIN 13
-#define D5_PIN 12 
+#define D5_PIN 25
 #define D6_PIN 14 
 #define D7_PIN 27
