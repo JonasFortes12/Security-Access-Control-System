@@ -121,7 +121,6 @@ void masterMode(){
       
       else if(fingerAnswer != 0){ // If some finger is detected
         storeFinger(fingerAnswer);
-        soundCardDefined();
       }
       
       else if(isCardNull(readCard)){ // do nothing
@@ -134,6 +133,8 @@ void masterMode(){
 
         // Check if there is a pending user in Firebase and register the card in Firebase
         if (getPendingUser(pendingUsername, pendingEmail)) {
+           Serial.println("Usuário pego Username: " + pendingUsername);
+           Serial.println("Usuário pego Email: " + pendingEmail);
           uint8_t readCardId =  findCardIndex(readCard);// Get the index of the card in EEPROM
           if (!registerUserRFID(pendingUsername, pendingEmail, readCardId)) {
              Serial.println("Falha ao registrar usuário com CardId no Firebase.");

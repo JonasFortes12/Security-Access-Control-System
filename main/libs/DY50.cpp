@@ -89,7 +89,7 @@ void storeFinger(uint8_t option){
         } else {
             Serial.println("❌ Falha ao remover usuário Finger do Firebase.");
         }
-
+        soundCardRemoved();
         delay(800);
         return;
     } else { // se não existe, add
@@ -146,6 +146,7 @@ void storeFinger(uint8_t option){
 
         // Se chegou aqui significa que todos os passos foram bem sucedidos
         Serial.println(F("Sucesso!!!"));
+        soundCardDefined();
         delay(800);
     }
     

@@ -195,7 +195,10 @@ bool logAccess(AccessType type, const uint8_t &key) {
   }
 
   String userPath;
-  if (!findUserBy("/users", typeAccess, key, userPath)) return false;
+  if (!findUserBy("/users", typeAccess, key, userPath)) {
+    Serial.println("Usuário não encontrado - Log de acesso. " + String(key));
+    return false;
+  }
 
   // Variáveis para armazenar dados do usuário
   String username;
