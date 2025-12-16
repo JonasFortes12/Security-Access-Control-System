@@ -26,4 +26,6 @@ bool clearPendingUser();
 
 bool logAccess(AccessType type, const uint8_t &key);
 
+bool getUserNameByAccess(AccessType type, const uint8_t &key, String &outUserName);
+
 #endif

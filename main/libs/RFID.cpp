@@ -115,10 +115,7 @@ void writeCardInIndex(byte cardID[], uint8_t index){  // Before we write to the 
 ///////////////////////////////////////// Add ID to EEPROM ///////////////////////////////////
 bool writeNewCard(byte cardID[]) {
   if (!cardExists(cardID)) {  // Before we write to the EEPROM, check to see if we have seen this card before!
-    uint8_t newIndex = getNumCards() + 1;
-    
-    // TODO: convert the cardID array to a String for registering in Firebase (convert to a function later)
-    
+    uint8_t newIndex = getNumCards() + 1;    
     writeCardInIndex(cardID, newIndex);
     incrementNumCards();
     return true;
@@ -144,13 +141,7 @@ uint8_t findCardIndex( byte card[] ) {
 ///////////////////////////////////////// Remove card from EEPROM   ///////////////////////////////////
 void deleteCard( byte card[] ) {
   if ( cardExists(card) ) {     // Before we delete from the EEPROM, check to see if we have this card!
-    
-    // TODO: search and delete the user with the card ID 
-    // in Firebase
-    // 1. Convert the cardID array to a String
-    // 2. Search the user in Firebase
-    // 3. If the user exists, delete the user
-
+  
     uint8_t num = getNumCards();   // Get the numer of used spaces, position 0 stores the number of ID cards
     uint8_t i;
     uint8_t index = findCardIndex(card);   // Figure out the slot number of the card to delete

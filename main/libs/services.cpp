@@ -89,6 +89,8 @@ bool tryScanAccessMethod(uint8_t* fingerExists, uint8_t* fingerIdRead) {
 }
 
 void masterMode(){
+  String currentUserName;
+
   do{
     memset(readCard, 0, sizeof(readCard)); // Limpa o readCard para ler um novo cartão
     
@@ -108,11 +110,17 @@ void masterMode(){
       
       if ( cardExists(readCard)) { // If scanned card is known delete it
         Serial.println("I know this card, removing...");
+        if (getUserNameByAccess(AccessType::RFID, findCardIndex(readCard), currentUserName)) {
+          showRemovingUser(currentUserName);
+        }
         
+
         if(deleteUserRFID(findCardIndex(readCard))){
           Serial.println("Usuário Card removido com sucesso do Firebase.");
+          showRemoveConfirmated(currentUserName);
         } else {
           Serial.println("Falha ao remover usuário card do Firebase.");
+          //TODO: Mensagem: Erro ao remover usuario.
         }
         
         deleteCard(readCard);
@@ -135,17 +143,21 @@ void masterMode(){
         if (getPendingUser(pendingUsername, pendingEmail)) {
            Serial.println("Usuário pego Username: " + pendingUsername);
            Serial.println("Usuário pego Email: " + pendingEmail);
+           
+          showRegisteringUser(pendingUsername);
           uint8_t readCardId =  findCardIndex(readCard);// Get the index of the card in EEPROM
           if (!registerUserRFID(pendingUsername, pendingEmail, readCardId)) {
              Serial.println("Falha ao registrar usuário com CardId no Firebase.");
           }
-          
+          showRegisterConfirmated(pendingUsername);
+
           // Clear the pending user data
           pendingUsername = "";
           pendingEmail = "";
           clearPendingUser();
 
         } else {
+          //TODO: Mensagem: "Cadastro não iniciado!"
           Serial.println("Nenhum usuário pendente encontrado.");
         }
 

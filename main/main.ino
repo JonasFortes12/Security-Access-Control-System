@@ -59,20 +59,33 @@ void loop () {
     masterMode();
   } 
   else {
+    String currentUserName;
     cardVerified = cardExists(readCard);
     if (cardVerified) { // If not, see if the card is in the EEPROM
-      Serial.println("Welcome, You shall pass");
-      showAllowedMessage();
+      Serial.println("Welcome, You shall pass with RFID");
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, LOW);
       logAccess(AccessType::RFID, findCardIndex(readCard));
+      
+      if (getUserNameByAccess(AccessType::RFID, findCardIndex(readCard), currentUserName)) {
+        showWelcomeMessage(currentUserName);
+      } else {
+        Serial.println("Error retrieving user name on RFID Access");
+        showAllowedMessage();           
+      }
 
     }else if(fingerExists == 1){
       Serial.println("Welcome, You shall pass with finger");
-      showAllowedMessage();
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, LOW);
       logAccess(AccessType::FINGER, fingerIdRead);
+
+      if (getUserNameByAccess(AccessType::FINGER, fingerIdRead, currentUserName)) {
+        showWelcomeMessage(currentUserName);
+      } else {
+        Serial.println("Error retrieving user name on Finger Access");
+        showAllowedMessage();
+      }
     }
 
     else if(fingerExists == 2 || !cardVerified) {      // If not, show that the ID was not valid

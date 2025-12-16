@@ -8,7 +8,7 @@ void setupLCD(){
   lcd.begin(16, 2);
 }
 
-void showMessage(char msg[], uint8_t line){
+void showMessage(const String &msg, uint8_t line){
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor(0, line);
@@ -33,5 +33,45 @@ void showDaniedMessage(){
 
 void showEntryMasterModeMessage(){
     clearLCD();
-    showMessage("Modo de Cadastro",0);
+    showMessage("Modo de Cadastro", 0);
 }
+
+void showRegisteringUser(const String &userName) {
+  clearLCD();
+  showMessage("Registrando: ", 0);
+  showMessage(userName, 1);
+  delay(1000);
+  showEntryMasterModeMessage();
+}
+
+void showRegisterConfirmated(const String &userName) {
+  clearLCD();
+  showMessage("Registro Feito: ", 0);
+  showMessage(userName, 1);
+  delay(1000);
+  showEntryMasterModeMessage();
+}
+
+void showWelcomeMessage(const String &userName) {
+  clearLCD();
+  showMessage("Bem-vindo,", 0);
+  showMessage(userName, 1);
+}
+
+
+void showRemovingUser(const String &userName) {
+  clearLCD();
+  showMessage("Removendo: ", 0);
+  showMessage(userName, 1);
+  delay(1000);
+  showEntryMasterModeMessage();
+}
+
+void showRemoveConfirmated(const String &userName) {
+  clearLCD();
+  showMessage("Remoção Feita: ", 0);
+  showMessage(userName, 1);
+  delay(1000);
+  showEntryMasterModeMessage();
+}
+

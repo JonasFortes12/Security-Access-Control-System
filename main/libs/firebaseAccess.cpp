@@ -229,9 +229,34 @@ bool logAccess(AccessType type, const uint8_t &key) {
 bool clearPendingUser() {
   bool ok = Firebase.RTDB.deleteNode(&fbdo, "/pendingUser/current");
   if (ok) {
-    Serial.println("🧹 Usuário pendente limpo com sucesso.");
+    Serial.println("Usuário pendente limpo com sucesso.");
   } else {
-    Serial.println("⚠️ Falha ao limpar usuário pendente.");
+    Serial.println("Falha ao limpar usuário pendente.");
   }
   return ok;
+}
+
+// 7) Pega o nome do usuário
+bool getUserNameByAccess(AccessType type, const uint8_t &key, String &outUserName) {
+  String field;
+  switch (type) {
+    case AccessType::RFID:   field = "rfid";     break;
+    case AccessType::FINGER: field = "fingerId"; break;
+    default: return false;
+  }
+
+  String userPath;
+
+  if (!findUserBy("/users", field, key, userPath)) {
+    Serial.println("getUserNameByAccess: usuário não encontrado. key=" + String(key));
+    return false;
+  }
+
+  if (!Firebase.RTDB.getString(&fbdo, userPath + "/username")) {
+    Serial.println("getUserNameByAccess: falha ao ler username: " + fbdo.errorReason());
+    return false;
+  }
+
+  outUserName = fbdo.stringData();
+  return true;
 }

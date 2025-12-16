@@ -60,6 +60,8 @@ void deleteFinger(uint8_t position){
 }
 
 void storeFinger(uint8_t option){
+    String currentUserName;
+
     uint16_t position = getFirstFreeSlot();// used as ID of the finger
 
     // Espera até pegar uma imagem válida da digital
@@ -82,12 +84,18 @@ void storeFinger(uint8_t option){
         // Mostramos a posição onde a digital estava salva e a confiança
         uint8_t fingerId = fingerprintSensor.fingerID;
 
+        if (getUserNameByAccess(AccessType::FINGER, fingerId, currentUserName)) {
+          showRemovingUser(currentUserName);
+        }
+
         deleteFinger(fingerId); 
         // Apaga o registro no Firebase
         if (deleteUserFinger(fingerId)) {
             Serial.println("✅ Usuário Finger removido com sucesso do Firebase.");
+            showRemoveConfirmated(currentUserName);
         } else {
             Serial.println("❌ Falha ao remover usuário Finger do Firebase.");
+            //TODO: Mensagem: Erro ao remover usuario.
         }
         soundCardRemoved();
         delay(800);
