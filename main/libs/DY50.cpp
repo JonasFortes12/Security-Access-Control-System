@@ -64,6 +64,7 @@ void storeFinger(uint8_t option){
     String currentUserName;
 
     uint16_t position = getFirstFreeSlot();// used as ID of the finger
+    showPutFingerMessage();
 
     // Espera até pegar uma imagem válida da digital
     while (fingerprintSensor.getImage() != FINGERPRINT_OK);
@@ -81,6 +82,7 @@ void storeFinger(uint8_t option){
     if (option == 1){ // se existe, remove
         //Se chegou aqui significa que a digital foi encontrada
         Serial.println("Digital encontrada! Apagando...");
+        showTakeOffFingerMessage();
 
         // Mostramos a posição onde a digital estava salva e a confiança
         uint8_t fingerId = fingerprintSensor.fingerID;
@@ -105,6 +107,7 @@ void storeFinger(uint8_t option){
         
         Serial.println("Digital não encontrada! Cadastrando...");
         Serial.println(F("Tire o dedo do sensor"));
+        showTakeOffFingerMessage();
 
 
         // Espera até tirar o dedo
@@ -112,6 +115,7 @@ void storeFinger(uint8_t option){
 
         // Antes de guardar precisamos de outra imagem da mesma digital
         Serial.println(F("Encoste o mesmo dedo no sensor"));
+        showPutFingerMessage();
 
         // Espera até pegar uma imagem válida da digital
         while (fingerprintSensor.getImage() != FINGERPRINT_OK);
@@ -139,10 +143,13 @@ void storeFinger(uint8_t option){
 
         // Registrar no Firebase, se houver usuário pendente
         if (getPendingUser(pendingUsernameForUserFinger, pendingEmailForUserFinger)) {
+            showRegisteringUser(pendingUsernameForUserFinger);
+
           if (!registerUserFinger(pendingUsernameForUserFinger, pendingEmailForUserFinger, position)) {
-            Serial.println("❌ Falha ao registrar usuário com FingerID no Firebase.");
+            Serial.println("Falha ao registrar usuário com FingerID no Firebase.");
           } else {
-            Serial.println("✅ Usuário registrado com FingerID no Firebase.");
+            Serial.println("Usuário registrado com FingerID no Firebase.");
+            showRegisterConfirmated(pendingUsernameForUserFinger);
           }
           // Limpa dados locais
           pendingUsernameForUserFinger = "";

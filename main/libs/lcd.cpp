@@ -22,13 +22,26 @@ void clearLCD(){
 
 void showAllowedMessage(){
     clearLCD();
-    showMessage("Bem Vindo,",0);
-    showMessage("petiano(a)!",1);
+    showMessage("Bem Vindo(a),",0);
+}
+
+void showWaitingAccessMessage(){
+    clearLCD();
+    showMessage("Aguardando", 0);
+    showMessage("acesso ...", 1);
 }
 
 void showDaniedMessage(){
     clearLCD();
     showMessage("Acesso Negado!",0);
+    delay(3000);
+    showWaitingAccessMessage();
+}
+
+void showStartingSystemMessage(){
+    clearLCD();
+    showMessage("Iniciando ", 0);
+    showMessage("sistema...", 1);
 }
 
 void showEntryMasterModeMessage(){
@@ -40,22 +53,22 @@ void showRegisteringUser(const String &userName) {
   clearLCD();
   showMessage("Registrando: ", 0);
   showMessage(userName, 1);
-  delay(1000);
-  showEntryMasterModeMessage();
 }
 
 void showRegisterConfirmated(const String &userName) {
   clearLCD();
   showMessage("Registro Feito: ", 0);
   showMessage(userName, 1);
-  delay(1000);
+  delay(2000);
   showEntryMasterModeMessage();
 }
 
 void showWelcomeMessage(const String &userName) {
   clearLCD();
-  showMessage("Bem-vindo,", 0);
+  showMessage("Bem Vindo(a),",0);
   showMessage(userName, 1);
+  delay(3000);
+  showWaitingAccessMessage();
 }
 
 
@@ -69,7 +82,21 @@ void showRemoveConfirmated(const String &userName) {
   clearLCD();
   showMessage("Removido: ", 0);
   showMessage(userName, 1);
-  delay(1000);
+  delay(2000);
   showEntryMasterModeMessage();
+}
+
+void showPutFingerMessage(){
+    clearLCD();
+    showMessage("Coloque o dedo", 0);
+    showMessage("no sensor...", 1);
+    delay(2000);
+}
+
+void showTakeOffFingerMessage(){
+    clearLCD();
+    showMessage("Retire o dedo", 0);
+    showMessage("do sensor...", 1);
+    delay(2000);
 }
 

@@ -5,6 +5,7 @@
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
+  
 
   // pins definitions
   pinMode(BUZZER_PIN, OUTPUT);
@@ -20,6 +21,7 @@ void setup() {
 
   //Init Display
   setupLCD();
+  showStartingSystemMessage();
 
   //Init Serial 
   Serial.begin(9600);  // Initialize serial communications with PC   
@@ -32,6 +34,9 @@ void setup() {
 
   //init time for logging timestamp
   setupTime();
+
+  // Show waiting access message
+  showWaitingAccessMessage();
 }
 
 
@@ -57,12 +62,14 @@ void loop () {
     Serial.print(numFingers);
     Serial.println(" finger(s) record(s) on EEPROM");
     masterMode();
+    showWaitingAccessMessage();
   } 
   else {
     String currentUserName;
     cardVerified = cardExists(readCard);
     if (cardVerified) { // If not, see if the card is in the EEPROM
       Serial.println("Welcome, You shall pass with RFID");
+      showAllowedMessage();
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, LOW);
       logAccess(AccessType::RFID, findCardIndex(readCard));
@@ -71,11 +78,12 @@ void loop () {
         showWelcomeMessage(currentUserName);
       } else {
         Serial.println("Error retrieving user name on RFID Access");
-        showAllowedMessage();           
+        //TODO: Message error retrieving user name          
       }
 
     }else if(fingerExists == 1){
       Serial.println("Welcome, You shall pass with finger");
+      showAllowedMessage();
       soundAllowed();
       setPinInStateForTime(2, LOCK_PIN, LOW);
       logAccess(AccessType::FINGER, fingerIdRead);
@@ -84,7 +92,7 @@ void loop () {
         showWelcomeMessage(currentUserName);
       } else {
         Serial.println("Error retrieving user name on Finger Access");
-        showAllowedMessage();
+        //TODO: Message error retrieving user name
       }
     }
 
