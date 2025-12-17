@@ -1,5 +1,6 @@
 #include <Adafruit_Fingerprint.h>
 #include "firebaseAccess.h"
+#include "lcd.h" 
 
 
 // Variables for storing user data coming from Firebase

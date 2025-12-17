@@ -63,13 +63,11 @@ void showRemovingUser(const String &userName) {
   clearLCD();
   showMessage("Removendo: ", 0);
   showMessage(userName, 1);
-  delay(1000);
-  showEntryMasterModeMessage();
 }
 
 void showRemoveConfirmated(const String &userName) {
   clearLCD();
-  showMessage("Remoção Feita: ", 0);
+  showMessage("Removido: ", 0);
   showMessage(userName, 1);
   delay(1000);
   showEntryMasterModeMessage();

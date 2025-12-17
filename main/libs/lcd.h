@@ -14,7 +14,7 @@ void showEntryMasterModeMessage();
 
 void showRegisteringUser(const String &userName);
 
-void showRegisterConfirmated(const String &userName)
+void showRegisterConfirmated(const String &userName);
 
 void showWelcomeMessage(const String &userName);
 
