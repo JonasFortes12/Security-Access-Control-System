@@ -78,7 +78,8 @@ void loop () {
         showWelcomeMessage(currentUserName);
       } else {
         Serial.println("Error retrieving user name on RFID Access");
-        //TODO: Message error retrieving user name          
+        showUserNotFoundError();
+        showWaitingAccessMessage();          
       }
 
     }else if(fingerExists == 1){
@@ -92,7 +93,8 @@ void loop () {
         showWelcomeMessage(currentUserName);
       } else {
         Serial.println("Error retrieving user name on Finger Access");
-        //TODO: Message error retrieving user name
+        showUserNotFoundError();
+        showWaitingAccessMessage();
       }
     }
 

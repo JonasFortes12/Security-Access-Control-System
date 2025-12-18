@@ -29,3 +29,7 @@ void showRemoveConfirmated(const String &userName);
 void showPutFingerMessage();
 
 void showTakeOffFingerMessage();
+
+void showRegisterNotStartedError();
+
+void showUserNotFoundError();

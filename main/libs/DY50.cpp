@@ -98,7 +98,8 @@ void storeFinger(uint8_t option){
             showRemoveConfirmated(currentUserName);
         } else {
             Serial.println("❌ Falha ao remover usuário Finger do Firebase.");
-            //TODO: Mensagem: Erro ao remover usuario.
+            showUserNotFoundError();
+            showEntryMasterModeMessage();
         }
         soundCardRemoved();
         delay(800);

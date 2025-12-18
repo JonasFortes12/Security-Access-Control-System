@@ -156,7 +156,7 @@ void masterMode(){
           clearPendingUser();
 
         } else {
-          //TODO: Mensagem: "Cadastro não iniciado!"
+          showRegisterNotStartedError();
           Serial.println("Nenhum usuário pendente encontrado.");
         }
 

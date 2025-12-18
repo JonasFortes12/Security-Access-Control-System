@@ -100,3 +100,18 @@ void showTakeOffFingerMessage(){
     delay(2000);
 }
 
+void showRegisterNotStartedError(){
+    clearLCD();
+    showMessage("Cadastro web nao", 0);
+    showMessage("iniciado!", 1);
+    delay(2000);
+    showEntryMasterModeMessage();
+}
+
+void showUserNotFoundError(){
+    clearLCD();
+    showMessage("Nome usuario nao", 0);
+    showMessage("encontrado!", 1);
+    delay(2000);
+}
+
